@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huoli.hlai.generate.article.mapper.ArticleTemplateMapper">
+    <!-- 基础结果映射 -->
+    <resultMap id="BaseResultMap" type="com.huoli.hlai.generate.article.model.entity.ArticleTemplate">
+        <id column="article_template_id" property="articleTemplateId"/>
+        <result column="user_id" property="userId"/>
+        <result column="article_title" property="articleTitle"/>
+        <result column="template_title" property="templateTitle"/>
+        <result column="file_type" property="fileType"/>
+        <result column="file_path" property="filePath"/>
+        <result column="import_url" property="importUrl"/>
+        <result column="status" property="status"/>
+        <result column="summary" property="summary"/>
+        <result column="tags" property="tags"/>
+        <result column="content_length" property="contentLength"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+    <insert id="insert" parameterType="com.huoli.hlai.generate.article.model.entity.ArticleTemplate">
+        INSERT INTO article_template (
+            article_template_id, user_id, article_title, template_title, file_type, file_path, import_url, status,
+            summary, tags, content_length, create_time, update_time
+        ) VALUES (
+                     #{articleTemplateId}, #{userId}, #{articleTitle}, #{templateTitle}, #{fileType}, #{filePath}, #{importUrl}, #{status},
+                     #{summary}, #{tags}, #{contentLength}, #{createTime}, #{updateTime}
+                 )
+    </insert>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO article_template (
+            article_template_id, user_id, article_title, template_title, file_type, file_path, import_url, status,
+            summary, tags, content_length, create_time, update_time
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.articleTemplateId}, #{item.userId}, #{item.articleTitle}, #{item.templateTitle}, #{item.fileType}, #{item.filePath}, #{item.importUrl}, #{item.status},
+                #{item.summary}, #{item.tags}, #{item.contentLength}, #{item.createTime}, #{item.updateTime}
+            )
+        </foreach>
+    </insert>
+
+    <update id="update" parameterType="com.huoli.hlai.generate.article.model.entity.ArticleTemplate">
+        UPDATE article_template SET
+                           user_id = #{userId},
+                           article_title = #{articleTitle},
+                           template_title = #{templateTitle},
+                           file_type = #{fileType},
+                           file_path = #{filePath},
+                           import_url = #{importUrl},
+                           status = #{status},
+                           summary = #{summary},
+                           tags = #{tags},
+                           content_length = #{contentLength},
+                           update_time = #{updateTime}
+        WHERE article_template_id = #{articleTemplateId}
+    </update>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT 
+            article_template_id, user_id, article_title, template_title, 
+            file_type, file_path, import_url, status, summary, 
+            tags, content_length, create_time, update_time 
+        FROM article_template 
+        WHERE article_template_id = #{articleTemplateId} AND user_id = #{userId}
+    </select>
+
+    <select id="selectByStatus" resultMap="BaseResultMap">
+        SELECT 
+            article_template_id, user_id, article_title, template_title, 
+            file_type, file_path, import_url, status, summary, 
+            tags, content_length, create_time, update_time 
+        FROM article_template 
+        WHERE user_id = #{userId} AND status = #{status}
+    </select>
+
+    <select id="selectArticlesWithPagination" parameterType="com.huoli.hlai.generate.article.model.dto.article.template.ArticleQueryDTO" resultMap="BaseResultMap">
+        SELECT 
+            article_template_id, user_id, article_title, template_title, 
+            file_type, file_path, import_url, status, summary, 
+            tags, content_length, create_time, update_time 
+        FROM article_template 
+        WHERE user_id = #{userId}
+        <if test="statusList != null and statusList.size() > 0">
+            AND status IN
+            <foreach collection="statusList" item="status" open="(" separator="," close=")">
+                #{status}
+            </foreach>
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (article_title LIKE CONCAT('%', #{keyword}, '%') OR tags LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        ORDER BY create_time DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countArticles" parameterType="com.huoli.hlai.generate.article.model.dto.article.template.ArticleTemplateCountDTO" resultType="int">
+        SELECT COUNT(*) FROM article_template WHERE user_id = #{userId}
+        <if test="statusList != null and statusList.size() > 0">
+            AND status IN
+            <foreach collection="statusList" item="status" open="(" separator="," close=")">
+                #{status}
+            </foreach>
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (article_title LIKE CONCAT('%', #{keyword}, '%') OR tags LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+    </select>
+
+    <select id="selectTemplatesWithPagination" parameterType="com.huoli.hlai.generate.article.model.dto.article.template.TemplateQueryDTO" resultMap="BaseResultMap">
+        SELECT 
+            article_template_id, user_id, article_title, template_title, 
+            file_type, file_path, import_url, status, summary, 
+            tags, content_length, create_time, update_time 
+        FROM article_template 
+        WHERE user_id = #{userId} AND status = #{status}
+        <if test="keyword != null and keyword != ''">
+            AND (template_title LIKE CONCAT('%', #{keyword}, '%') OR tags LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        ORDER BY create_time DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countTemplates" parameterType="com.huoli.hlai.generate.article.model.dto.article.template.ArticleTemplateCountDTO" resultType="int">
+        SELECT COUNT(*) FROM article_template WHERE user_id = #{userId}
+        <if test="statusList != null and statusList.size() > 0">
+            AND status IN
+            <foreach collection="statusList" item="status" open="(" separator="," close=")">
+                #{status}
+            </foreach>
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (template_title LIKE CONCAT('%', #{keyword}, '%') OR tags LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+    </select>
+</mapper>

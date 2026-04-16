@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huoli.hlai.generate.article.mapper.HotspotKeywordHistoryMapper">
+
+    <resultMap id="BaseResultMap"
+               type="com.huoli.hlai.generate.article.model.entity.HotspotKeywordHistoryEntity">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="keyword" jdbcType="VARCHAR" property="keyword"/>
+        <result column="used_count" jdbcType="INTEGER" property="usedCount"/>
+        <result column="last_used_time" jdbcType="TIMESTAMP" property="lastUsedTime"/>
+        <result column="created_time" jdbcType="TIMESTAMP" property="createdTime"/>
+        <result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,
+        user_id,
+        keyword,
+        used_count,
+        last_used_time,
+        created_time,
+        updated_time
+    </sql>
+
+    <insert id="insert"
+            parameterType="com.huoli.hlai.generate.article.model.entity.HotspotKeywordHistoryEntity"
+            useGeneratedKeys="true"
+            keyProperty="id">
+        insert into hotspot_keyword_history
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            user_id,
+            keyword,
+            <if test="usedCount != null">used_count,</if>
+            <if test="lastUsedTime != null">last_used_time,</if>
+            <if test="createdTime != null">created_time,</if>
+            <if test="updatedTime != null">updated_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{userId, jdbcType=BIGINT},
+            #{keyword, jdbcType=VARCHAR},
+            <if test="usedCount != null">#{usedCount, jdbcType=INTEGER},</if>
+            <if test="lastUsedTime != null">#{lastUsedTime, jdbcType=TIMESTAMP},</if>
+            <if test="createdTime != null">#{createdTime, jdbcType=TIMESTAMP},</if>
+            <if test="updatedTime != null">#{updatedTime, jdbcType=TIMESTAMP},</if>
+        </trim>
+    </insert>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from hotspot_keyword_history
+        where id = #{id, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectByUserIdAndKeyword" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from hotspot_keyword_history
+        where user_id = #{userId, jdbcType=BIGINT}
+          and keyword = #{keyword, jdbcType=VARCHAR}
+        limit 1
+    </select>
+
+    <select id="selectLatestByUserId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from hotspot_keyword_history
+        where user_id = #{userId, jdbcType=BIGINT}
+        order by last_used_time desc, id desc
+        limit #{limit, jdbcType=INTEGER}
+    </select>
+
+    <update id="updateByIdSelective"
+            parameterType="com.huoli.hlai.generate.article.model.entity.HotspotKeywordHistoryEntity">
+        update hotspot_keyword_history
+        <set>
+            <if test="userId != null">user_id = #{userId, jdbcType=BIGINT},</if>
+            <if test="keyword != null and keyword != ''">keyword = #{keyword, jdbcType=VARCHAR},</if>
+            <if test="usedCount != null">used_count = #{usedCount, jdbcType=INTEGER},</if>
+            <if test="lastUsedTime != null">last_used_time = #{lastUsedTime, jdbcType=TIMESTAMP},</if>
+            updated_time = current_timestamp
+        </set>
+        where id = #{id, jdbcType=BIGINT}
+    </update>
+
+    <insert id="insertOrIncrement">
+        insert into hotspot_keyword_history (
+            user_id,
+            keyword,
+            used_count,
+            last_used_time
+        ) values (
+            #{userId, jdbcType=BIGINT},
+            #{keyword, jdbcType=VARCHAR},
+            1,
+            #{lastUsedTime, jdbcType=TIMESTAMP}
+        )
+        on duplicate key update
+            used_count = used_count + 1,
+            last_used_time = values(last_used_time),
+            updated_time = current_timestamp
+    </insert>
+
+</mapper>

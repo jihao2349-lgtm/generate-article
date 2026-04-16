@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huoli.hlai.generate.article.mapper.HotspotAnalysisRecordMapper">
+
+    <resultMap id="BaseResultMap"
+               type="com.huoli.hlai.generate.article.model.entity.HotspotAnalysisRecordEntity">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="request_no" jdbcType="VARCHAR" property="requestNo"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="request_type" jdbcType="VARCHAR" property="requestType"/>
+        <result column="keyword" jdbcType="VARCHAR" property="keyword"/>
+        <result column="request_hash" jdbcType="CHAR" property="requestHash"/>
+        <result column="source_platforms" jdbcType="VARCHAR" property="sourcePlatforms"/>
+        <result column="input_payload" jdbcType="VARCHAR" property="inputPayload"/>
+        <result column="status" jdbcType="VARCHAR" property="status"/>
+        <result column="result_json" jdbcType="VARCHAR" property="resultJson"/>
+        <result column="error_message" jdbcType="VARCHAR" property="errorMessage"/>
+        <result column="started_time" jdbcType="TIMESTAMP" property="startedTime"/>
+        <result column="finished_time" jdbcType="TIMESTAMP" property="finishedTime"/>
+        <result column="created_time" jdbcType="TIMESTAMP" property="createdTime"/>
+        <result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,
+        request_no,
+        user_id,
+        request_type,
+        keyword,
+        request_hash,
+        source_platforms,
+        input_payload,
+        status,
+        result_json,
+        error_message,
+        started_time,
+        finished_time,
+        created_time,
+        updated_time
+    </sql>
+
+    <insert id="insert"
+            parameterType="com.huoli.hlai.generate.article.model.entity.HotspotAnalysisRecordEntity"
+            useGeneratedKeys="true"
+            keyProperty="id">
+        insert into hotspot_analysis_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            request_no,
+            <if test="userId != null">user_id,</if>
+            request_type,
+            <if test="keyword != null and keyword != ''">keyword,</if>
+            request_hash,
+            <if test="sourcePlatforms != null and sourcePlatforms != ''">source_platforms,</if>
+            input_payload,
+            <if test="status != null and status != ''">status,</if>
+            <if test="resultJson != null and resultJson != ''">result_json,</if>
+            <if test="errorMessage != null and errorMessage != ''">error_message,</if>
+            <if test="startedTime != null">started_time,</if>
+            <if test="finishedTime != null">finished_time,</if>
+            <if test="createdTime != null">created_time,</if>
+            <if test="updatedTime != null">updated_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{requestNo, jdbcType=VARCHAR},
+            <if test="userId != null">#{userId, jdbcType=BIGINT},</if>
+            #{requestType, jdbcType=VARCHAR},
+            <if test="keyword != null and keyword != ''">#{keyword, jdbcType=VARCHAR},</if>
+            #{requestHash, jdbcType=CHAR},
+            <if test="sourcePlatforms != null and sourcePlatforms != ''">#{sourcePlatforms, jdbcType=VARCHAR},</if>
+            #{inputPayload, jdbcType=VARCHAR},
+            <if test="status != null and status != ''">#{status, jdbcType=VARCHAR},</if>
+            <if test="resultJson != null and resultJson != ''">#{resultJson, jdbcType=VARCHAR},</if>
+            <if test="errorMessage != null and errorMessage != ''">#{errorMessage, jdbcType=VARCHAR},</if>
+            <if test="startedTime != null">#{startedTime, jdbcType=TIMESTAMP},</if>
+            <if test="finishedTime != null">#{finishedTime, jdbcType=TIMESTAMP},</if>
+            <if test="createdTime != null">#{createdTime, jdbcType=TIMESTAMP},</if>
+            <if test="updatedTime != null">#{updatedTime, jdbcType=TIMESTAMP},</if>
+        </trim>
+    </insert>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from hotspot_analysis_record
+        where id = #{id, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectByRequestNo" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from hotspot_analysis_record
+        where request_no = #{requestNo, jdbcType=VARCHAR}
+        limit 1
+    </select>
+
+    <select id="selectLatestSuccessByRequestHash" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from hotspot_analysis_record
+        where request_hash = #{requestHash, jdbcType=CHAR}
+          and status = 'SUCCESS'
+        order by id desc
+        limit 1
+    </select>
+
+    <update id="updateByIdSelective"
+            parameterType="com.huoli.hlai.generate.article.model.entity.HotspotAnalysisRecordEntity">
+        update hotspot_analysis_record
+        <set>
+            <if test="requestNo != null and requestNo != ''">request_no = #{requestNo, jdbcType=VARCHAR},</if>
+            <if test="userId != null">user_id = #{userId, jdbcType=BIGINT},</if>
+            <if test="requestType != null and requestType != ''">request_type = #{requestType, jdbcType=VARCHAR},</if>
+            <if test="keyword != null">keyword = #{keyword, jdbcType=VARCHAR},</if>
+            <if test="requestHash != null and requestHash != ''">request_hash = #{requestHash, jdbcType=CHAR},</if>
+            <if test="sourcePlatforms != null">source_platforms = #{sourcePlatforms, jdbcType=VARCHAR},</if>
+            <if test="inputPayload != null and inputPayload != ''">input_payload = #{inputPayload, jdbcType=VARCHAR},</if>
+            <if test="status != null and status != ''">status = #{status, jdbcType=VARCHAR},</if>
+            <if test="resultJson != null">result_json = #{resultJson, jdbcType=VARCHAR},</if>
+            <if test="errorMessage != null">error_message = #{errorMessage, jdbcType=VARCHAR},</if>
+            <if test="startedTime != null">started_time = #{startedTime, jdbcType=TIMESTAMP},</if>
+            <if test="finishedTime != null">finished_time = #{finishedTime, jdbcType=TIMESTAMP},</if>
+            updated_time = current_timestamp
+        </set>
+        where id = #{id, jdbcType=BIGINT}
+    </update>
+
+    <update id="updateStatusById">
+        update hotspot_analysis_record
+        set status = #{status, jdbcType=VARCHAR},
+            result_json = #{resultJson, jdbcType=VARCHAR},
+            error_message = #{errorMessage, jdbcType=VARCHAR},
+            finished_time = #{finishedTime, jdbcType=TIMESTAMP},
+            updated_time = current_timestamp
+        where id = #{id, jdbcType=BIGINT}
+    </update>
+
+</mapper>
